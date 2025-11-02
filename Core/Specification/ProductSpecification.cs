@@ -5,12 +5,17 @@ namespace Core.Specification;
 
 public class ProductSpecification : BaseSpecification<Product>
 {
-    public ProductSpecification(string? brand, string? type, string? sort) :base(x =>
-            (string.IsNullOrWhiteSpace(brand) || x.Brand == brand) &&
-            (string.IsNullOrWhiteSpace(type) || x.Type == type))
-    {  
+    public ProductSpecification(ProductSpecParams productParams) :base(x =>
+            (string.IsNullOrEmpty(productParams.Search) || x.Name.ToLower().Contains(productParams.Search)) &&
+            (!productParams.Brands.Any() || productParams.Brands.Contains(x.Brand)) &&
+            (!productParams.Types.Any() || productParams.Types.Contains(x.Type)))
+    {
         
-        switch (sort)
+        
+        ApplyPaging(productParams.PageSize * (productParams.PageIndex - 1), productParams.PageSize);
+
+
+        switch (productParams.Sort)
         {
             case "priceAsc":
                 AddOrderBy(x => x.Price);
